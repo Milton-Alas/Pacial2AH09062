@@ -80,11 +80,17 @@ public class UserRepository {
                 userDAO.insertUser(user);
                 Log.d(TAG, "Usuario guardado localmente: " + user.getEmail());
                 
-                // 3. Intentar sincronizar con Firebase
+                // 3. Por ahora solo funcionar localmente (Firebase se configurará después)
+                user.setPendingSync(false); // Marcar como sincronizado para pruebas
+                userDAO.updateSyncStatus(user.getEmail(), false);
+                Log.d(TAG, "Usuario guardado localmente (modo offline): " + user.getEmail());
+                callback.onSuccess();
+                
+                // TODO: Descomentar cuando Firebase esté configurado
+                /*
                 syncUserToFirebase(user, new RepositoryCallback() {
                     @Override
                     public void onSuccess() {
-                        // Actualizar estado de sincronización
                         executor.execute(() -> {
                             userDAO.updateSyncStatus(user.getEmail(), false);
                             Log.d(TAG, "Usuario sincronizado exitosamente: " + user.getEmail());
@@ -95,10 +101,10 @@ public class UserRepository {
                     @Override
                     public void onFailure(String error) {
                         Log.w(TAG, "No se pudo sincronizar con Firebase, usuario guardado localmente: " + error);
-                        // El usuario ya está guardado localmente, así que es un éxito parcial
                         callback.onSuccess();
                     }
                 });
+                */
                 
             } catch (Exception e) {
                 Log.e(TAG, "Error registrando usuario", e);
@@ -121,14 +127,15 @@ public class UserRepository {
                 if (localUser != null && localUser.getPassword().equals(password)) {
                     Log.d(TAG, "Usuario autenticado localmente: " + email);
                     callback.onSuccess(localUser);
-                    
-                    // Intentar sincronizar en background si hay cambios pendientes
-                    if (localUser.isPendingSync()) {
-                        syncUserToFirebase(localUser, null);
-                    }
                     return;
                 }
                 
+                // Por ahora solo autenticación local (Firebase se configurará después)
+                Log.d(TAG, "Credenciales inválidas - usuario no encontrado localmente: " + email);
+                callback.onFailure("Credenciales inválidas. Registra el usuario primero.");
+                
+                // TODO: Descomentar cuando Firebase esté configurado
+                /*
                 // 2. Si no está local o la contraseña no coincide, verificar en Firebase
                 firebaseManager.authenticateUser(email, password, new FirebaseManager.UserCallback() {
                     @Override
@@ -154,6 +161,7 @@ public class UserRepository {
                         callback.onFailure("Credenciales inválidas");
                     }
                 });
+                */
                 
             } catch (Exception e) {
                 Log.e(TAG, "Error en autenticación", e);
@@ -185,7 +193,14 @@ public class UserRepository {
                 userDAO.updateUser(user);
                 Log.d(TAG, "Perfil actualizado localmente: " + email);
                 
-                // 3. Sincronizar con Firebase
+                // 3. Por ahora solo actualizar localmente (Firebase se configurará después)
+                user.setPendingSync(false); // Marcar como sincronizado para pruebas
+                userDAO.updateSyncStatus(email, false);
+                Log.d(TAG, "Perfil actualizado localmente (modo offline): " + email);
+                callback.onSuccess();
+                
+                // TODO: Descomentar cuando Firebase esté configurado
+                /*
                 firebaseManager.updateUser(user, new FirebaseManager.FirebaseCallback() {
                     @Override
                     public void onSuccess() {
@@ -199,10 +214,10 @@ public class UserRepository {
                     @Override
                     public void onFailure(String error) {
                         Log.w(TAG, "No se pudo sincronizar perfil con Firebase: " + error);
-                        // Los datos ya están guardados localmente
                         callback.onSuccess();
                     }
                 });
+                */
                 
             } catch (Exception e) {
                 Log.e(TAG, "Error actualizando perfil", e);

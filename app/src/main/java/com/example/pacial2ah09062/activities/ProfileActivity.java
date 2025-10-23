@@ -11,6 +11,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.android.material.card.MaterialCardView;
 import com.example.pacial2ah09062.R;
 import com.example.pacial2ah09062.database.entity.User;
 import com.example.pacial2ah09062.repository.UserRepository;
@@ -19,7 +20,8 @@ import com.example.pacial2ah09062.utils.ValidationUtils;
 
 public class ProfileActivity extends AppCompatActivity {
 
-    private TextView tvEmail, tvSyncWarning;
+    private TextView tvEmail;
+    private MaterialCardView tvSyncWarning;
     private TextInputLayout tilFullName;
     private EditText etFullName;
     private Button btnUpdate, btnRetrySync;

@@ -39,7 +39,22 @@ public class MainActivity extends AppCompatActivity {
     private void testRepositoryOperations() {
         Log.d(TAG, "=== INICIANDO PRUEBAS DEL REPOSITORY ===");
         
-        // 1. Probar registro de usuario
+        // 1. Crear usuario de prueba por defecto para login
+        User defaultUser = new User("admin@test.com", "Usuario Administrador", "admin123");
+        
+        userRepository.registerUser(defaultUser, new UserRepository.RepositoryCallback() {
+            @Override
+            public void onSuccess() {
+                Log.d(TAG, "✅ Usuario por defecto creado: admin@test.com / admin123");
+            }
+            
+            @Override
+            public void onFailure(String error) {
+                Log.d(TAG, "ℹ️ Usuario por defecto ya existe o error: " + error);
+            }
+        });
+        
+        // 2. Probar registro de usuario adicional
         User testUser = new User("test@example.com", "Test User Complete", "testpass123");
         
         userRepository.registerUser(testUser, new UserRepository.RepositoryCallback() {

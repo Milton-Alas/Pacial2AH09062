@@ -16,7 +16,7 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.MaterialComponents.Light.DarkActionBar"
+        android:theme="@style/Theme.Pacial2AH09062"
         tools:targetApi="31">
 
         <!-- Google Maps API Key // se implementara despues
@@ -30,7 +30,7 @@
         <activity
             android:name=".activities.SplashActivity"
             android:exported="true"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+            android:theme="@style/Theme.Pacial2AH09062">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -53,13 +53,15 @@
         <!-- HomeActivity -->
         <activity
             android:name=".activities.HomeActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:theme="@style/Theme.Pacial2AH09062.NoActionBar" />
 
         <!-- ProfileActivity -->
         <activity
             android:name=".activities.ProfileActivity"
             android:exported="false"
             android:parentActivityName=".activities.HomeActivity"
+            android:theme="@style/Theme.Pacial2AH09062.ActionBar"
             android:windowSoftInputMode="adjustResize" />
 
         <!-- MapActivity activity se implementara despues
