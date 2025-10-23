@@ -1,0 +1,37 @@
+{
+  "_comment": "ESTE ES UN ARCHIVO PLACEHOLDER - DEBE SER REEMPLAZADO",
+  "_instructions": [
+    "1. Ve a https://console.firebase.google.com/",
+    "2. Crea un proyecto nuevo o selecciona uno existente",
+    "3. Agrega tu aplicación Android con el package name: com.example.pacial2ah09062",
+    "4. Descarga el archivo google-services.json real",
+    "5. Reemplaza este archivo con el descargado"
+  ],
+  "project_info": {
+    "project_number": "123456789012",
+    "project_id": "your-project-id",
+    "storage_bucket": "your-project-id.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:123456789012:android:abcdef1234567890abcdef",
+        "android_client_info": {
+          "package_name": "com.example.pacial2ah09062"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "placeholder_api_key"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
