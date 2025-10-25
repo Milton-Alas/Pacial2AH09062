@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">App Parcial 2</string>
     <string name="nombre">Milton Alas</string>
+    <string name="google_maps_key">AIzaSyAbL6apSObLFg37DSofJG96zqd5cdFoIn0</string>
 </resources>

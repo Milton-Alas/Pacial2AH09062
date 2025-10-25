@@ -17,12 +17,26 @@ public class ValidationUtils {
     }
     
     /**
-     * Valida que la contraseña tenga al menos 8 caracteres
+     * Valida que la contraseña sea fuerte:
+     * - Al menos 8 caracteres
+     * - Al menos una letra
+     * - Al menos un número
+     * - Puede incluir caracteres especiales
      * @param password Contraseña a validar
      * @return true si es válida, false si no
      */
     public static boolean isValidPassword(String password) {
-        return password != null && password.length() >= 8;
+        if (password == null || password.length() < 8) {
+            return false;
+        }
+        
+        // Verificar que contenga al menos una letra
+        boolean hasLetter = password.matches(".*[a-zA-Z].*");
+        
+        // Verificar que contenga al menos un número
+        boolean hasNumber = password.matches(".*[0-9].*");
+        
+        return hasLetter && hasNumber;
     }
     
     /**
@@ -47,7 +61,7 @@ public class ValidationUtils {
      * @return Mensaje de error
      */
     public static String getPasswordErrorMessage() {
-        return "La contraseña debe tener al menos 8 caracteres";
+        return "La contraseña debe tener al menos 8 caracteres, incluyendo letras y números";
     }
     
     /**
@@ -58,44 +72,39 @@ public class ValidationUtils {
         return "El nombre completo debe tener al menos 7 caracteres";
     }
     
-    /**
-     * Valida todos los campos de registro
-     * @param email Email del usuario
-     * @param fullName Nombre completo del usuario
-     * @param password Contraseña del usuario
-     * @return Mensaje de error o null si todo es válido
-     */
-    public static String validateRegistrationFields(String email, String fullName, String password) {
-        if (!isValidEmail(email)) {
-            return getEmailErrorMessage();
-        }
-        
-        if (!isValidFullName(fullName)) {
-            return getFullNameErrorMessage();
-        }
-        
-        if (!isValidPassword(password)) {
-            return getPasswordErrorMessage();
-        }
-        
-        return null; // Todo válido
-    }
+    
+    // ================== MÉTODOS ADICIONALES DE VALIDACIÓN ==================
     
     /**
-     * Valida campos de login
-     * @param email Email del usuario
-     * @param password Contraseña del usuario
-     * @return Mensaje de error o null si todo es válido
+     * Obtiene un mensaje específico de qué falta en la contraseña
+     * @param password Contraseña a analizar
+     * @return Mensaje específico del problema, o null si es válida
      */
-    public static String validateLoginFields(String email, String password) {
-        if (!isValidEmail(email)) {
-            return getEmailErrorMessage();
+    public static String getPasswordStrengthMessage(String password) {
+        if (password == null || password.isEmpty()) {
+            return "La contraseña no puede estar vacía";
         }
         
-        if (!isValidPassword(password)) {
-            return getPasswordErrorMessage();
+        if (password.length() < 8) {
+            return "La contraseña debe tener al menos 8 caracteres (actual: " + password.length() + ")";
         }
         
-        return null; // Todo válido
+        boolean hasLetter = password.matches(".*[a-zA-Z].*");
+        boolean hasNumber = password.matches(".*[0-9].*");
+        
+        if (!hasLetter && !hasNumber) {
+            return "La contraseña debe incluir al menos una letra y un número";
+        }
+        
+        if (!hasLetter) {
+            return "La contraseña debe incluir al menos una letra (a-z, A-Z)";
+        }
+        
+        if (!hasNumber) {
+            return "La contraseña debe incluir al menos un número (0-9)";
+        }
+        
+        return null; // Es válida
     }
+    
 }

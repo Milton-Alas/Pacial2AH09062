@@ -2,6 +2,7 @@ package com.example.pacial2ah09062.database.entity;
 
 import androidx.annotation.NonNull;
 import androidx.room.Entity;
+import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
 @Entity(tableName = "users")
@@ -19,6 +20,7 @@ public class User {
     public User() {
     }
     
+    @Ignore
     public User(@NonNull String email, String fullName, String password) {
         this.email = email;
         this.fullName = fullName;

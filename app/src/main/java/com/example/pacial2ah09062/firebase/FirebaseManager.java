@@ -8,16 +8,25 @@ import com.google.firebase.firestore.DocumentSnapshot;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import android.os.Handler;
+import android.os.Looper;
 
 public class FirebaseManager {
     
     private static final String TAG = "FirebaseManager";
     private static final String USERS_COLLECTION = "users";
+    private static final long FIREBASE_TIMEOUT_MS = 5000; // 5 segundos timeout
     
     private FirebaseFirestore db;
+    private Handler timeoutHandler;
     
     public FirebaseManager() {
         db = FirebaseFirestore.getInstance();
+        timeoutHandler = new Handler(Looper.getMainLooper());
+        
+        // Configurar Firestore para mejor comportamiento offline
+        db.enableNetwork();
     }
     
     /**
@@ -48,16 +57,43 @@ public class FirebaseManager {
         userData.put("password", user.getPassword()); // En producción, usar hash
         userData.put("lastUpdated", user.getLastUpdated());
         
+        // Flag para controlar si ya se ejecutó el callback
+        final boolean[] callbackExecuted = {false};
+        
+        // Configurar timeout
+        Runnable timeoutRunnable = () -> {
+            synchronized (callbackExecuted) {
+                if (!callbackExecuted[0]) {
+                    callbackExecuted[0] = true;
+                    Log.w(TAG, "Timeout guardando usuario en Firebase: " + user.getEmail());
+                    callback.onFailure("Sin conexión a internet - usuario guardado localmente");
+                }
+            }
+        };
+        timeoutHandler.postDelayed(timeoutRunnable, FIREBASE_TIMEOUT_MS);
+        
         db.collection(USERS_COLLECTION)
                 .document(user.getEmail())
                 .set(userData)
                 .addOnSuccessListener(aVoid -> {
-                    Log.d(TAG, "Usuario guardado exitosamente en Firebase: " + user.getEmail());
-                    callback.onSuccess();
+                    synchronized (callbackExecuted) {
+                        if (!callbackExecuted[0]) {
+                            callbackExecuted[0] = true;
+                            timeoutHandler.removeCallbacks(timeoutRunnable);
+                            Log.d(TAG, "Usuario guardado exitosamente en Firebase: " + user.getEmail());
+                            callback.onSuccess();
+                        }
+                    }
                 })
                 .addOnFailureListener(e -> {
-                    Log.e(TAG, "Error guardando usuario en Firebase", e);
-                    callback.onFailure(e.getMessage());
+                    synchronized (callbackExecuted) {
+                        if (!callbackExecuted[0]) {
+                            callbackExecuted[0] = true;
+                            timeoutHandler.removeCallbacks(timeoutRunnable);
+                            Log.e(TAG, "Error guardando usuario en Firebase", e);
+                            callback.onFailure(e.getMessage());
+                        }
+                    }
                 });
     }
     
@@ -67,27 +103,55 @@ public class FirebaseManager {
      * @param callback Callback para manejar el resultado
      */
     public void getUser(String email, UserCallback callback) {
+        // Flag para controlar si ya se ejecutó el callback
+        final boolean[] callbackExecuted = {false};
+        
+        // Configurar timeout
+        Runnable timeoutRunnable = () -> {
+            synchronized (callbackExecuted) {
+                if (!callbackExecuted[0]) {
+                    callbackExecuted[0] = true;
+                    Log.w(TAG, "Timeout buscando usuario en Firebase: " + email);
+                    callback.onFailure("Sin conexión a internet");
+                }
+            }
+        };
+        timeoutHandler.postDelayed(timeoutRunnable, FIREBASE_TIMEOUT_MS);
+        
         db.collection(USERS_COLLECTION)
                 .document(email)
                 .get()
                 .addOnSuccessListener(documentSnapshot -> {
-                    if (documentSnapshot.exists()) {
-                        User user = documentToUser(documentSnapshot);
-                        if (user != null) {
-                            Log.d(TAG, "Usuario encontrado en Firebase: " + email);
-                            callback.onSuccess(user);
-                        } else {
-                            Log.e(TAG, "Error convertiendo documento a Usuario");
-                            callback.onFailure("Error procesando datos del usuario");
+                    synchronized (callbackExecuted) {
+                        if (!callbackExecuted[0]) {
+                            callbackExecuted[0] = true;
+                            timeoutHandler.removeCallbacks(timeoutRunnable);
+                            
+                            if (documentSnapshot.exists()) {
+                                User user = documentToUser(documentSnapshot);
+                                if (user != null) {
+                                    Log.d(TAG, "Usuario encontrado en Firebase: " + email);
+                                    callback.onSuccess(user);
+                                } else {
+                                    Log.e(TAG, "Error convertiendo documento a Usuario");
+                                    callback.onFailure("Error procesando datos del usuario");
+                                }
+                            } else {
+                                Log.d(TAG, "Usuario no encontrado en Firebase: " + email);
+                                callback.onFailure("Usuario no encontrado");
+                            }
                         }
-                    } else {
-                        Log.d(TAG, "Usuario no encontrado en Firebase: " + email);
-                        callback.onFailure("Usuario no encontrado");
                     }
                 })
                 .addOnFailureListener(e -> {
-                    Log.e(TAG, "Error buscando usuario en Firebase", e);
-                    callback.onFailure(e.getMessage());
+                    synchronized (callbackExecuted) {
+                        if (!callbackExecuted[0]) {
+                            callbackExecuted[0] = true;
+                            timeoutHandler.removeCallbacks(timeoutRunnable);
+                            Log.e(TAG, "Error buscando usuario en Firebase", e);
+                            callback.onFailure(e.getMessage());
+                        }
+                    }
                 });
     }
     
@@ -101,16 +165,43 @@ public class FirebaseManager {
         userData.put("fullName", user.getFullName());
         userData.put("lastUpdated", System.currentTimeMillis());
         
+        // Flag para controlar si ya se ejecutó el callback
+        final boolean[] callbackExecuted = {false};
+        
+        // Configurar timeout
+        Runnable timeoutRunnable = () -> {
+            synchronized (callbackExecuted) {
+                if (!callbackExecuted[0]) {
+                    callbackExecuted[0] = true;
+                    Log.w(TAG, "Timeout actualizando usuario en Firebase: " + user.getEmail());
+                    callback.onFailure("Sin conexión a internet - cambios guardados localmente");
+                }
+            }
+        };
+        timeoutHandler.postDelayed(timeoutRunnable, FIREBASE_TIMEOUT_MS);
+        
         db.collection(USERS_COLLECTION)
                 .document(user.getEmail())
                 .update(userData)
                 .addOnSuccessListener(aVoid -> {
-                    Log.d(TAG, "Usuario actualizado exitosamente en Firebase: " + user.getEmail());
-                    callback.onSuccess();
+                    synchronized (callbackExecuted) {
+                        if (!callbackExecuted[0]) {
+                            callbackExecuted[0] = true;
+                            timeoutHandler.removeCallbacks(timeoutRunnable);
+                            Log.d(TAG, "Usuario actualizado exitosamente en Firebase: " + user.getEmail());
+                            callback.onSuccess();
+                        }
+                    }
                 })
                 .addOnFailureListener(e -> {
-                    Log.e(TAG, "Error actualizando usuario en Firebase", e);
-                    callback.onFailure(e.getMessage());
+                    synchronized (callbackExecuted) {
+                        if (!callbackExecuted[0]) {
+                            callbackExecuted[0] = true;
+                            timeoutHandler.removeCallbacks(timeoutRunnable);
+                            Log.e(TAG, "Error actualizando usuario en Firebase", e);
+                            callback.onFailure(e.getMessage());
+                        }
+                    }
                 });
     }
     

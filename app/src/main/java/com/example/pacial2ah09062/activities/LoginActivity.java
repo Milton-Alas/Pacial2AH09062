@@ -115,6 +115,14 @@ public class LoginActivity extends AppCompatActivity {
         // Mostrar progreso
         showLoading(true);
 
+        // Validación adicional: verificar fortaleza de contraseña
+        String passwordStrengthError = ValidationUtils.getPasswordStrengthMessage(password);
+        if (passwordStrengthError != null) {
+            tilPassword.setError(passwordStrengthError);
+            showLoading(false);
+            return;
+        }
+        
         // Validar credenciales
         userRepository.authenticateUser(email, password, new UserRepository.AuthCallback() {
             @Override

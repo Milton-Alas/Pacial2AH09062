@@ -19,12 +19,11 @@
         android:theme="@style/Theme.Pacial2AH09062"
         tools:targetApi="31">
 
-        <!-- Google Maps API Key // se implementara despues
+        <!-- Google Maps API Key -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
 
-            -->
 
         <!-- SplashActivity como launcher -->
         <activity
@@ -64,12 +63,12 @@
             android:theme="@style/Theme.Pacial2AH09062.ActionBar"
             android:windowSoftInputMode="adjustResize" />
 
-        <!-- MapActivity activity se implementara despues
+        <!-- MapActivity -->
+        <activity
             android:name=".activities.MapActivity"
             android:exported="false"
             android:parentActivityName=".activities.HomeActivity" />
 
-            -->
 
 
     </application>

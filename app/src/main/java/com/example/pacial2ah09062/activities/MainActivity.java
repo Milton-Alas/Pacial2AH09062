@@ -10,8 +10,8 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.pacial2ah09062.R;
-import com.example.pacial2ah09062.database.entity.User;
 import com.example.pacial2ah09062.repository.UserRepository;
+import com.google.firebase.FirebaseApp;
 
 public class MainActivity extends AppCompatActivity {
     
@@ -29,88 +29,17 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
         
+        // Verificar Firebase
+        try {
+            FirebaseApp.initializeApp(this);
+            Log.d(TAG, "✅ Firebase inicializado correctamente");
+        } catch (Exception e) {
+            Log.e(TAG, "❌ Error inicializando Firebase: " + e.getMessage(), e);
+        }
+        
         // Inicializar repositorio
         userRepository = UserRepository.getInstance(this);
         
-        // Probar funcionalidades del repositorio
-        testRepositoryOperations();
-    }
-    
-    private void testRepositoryOperations() {
-        Log.d(TAG, "=== INICIANDO PRUEBAS DEL REPOSITORY ===");
-        
-        // 1. Crear usuario de prueba por defecto para login
-        User defaultUser = new User("admin@test.com", "Usuario Administrador", "admin123");
-        
-        userRepository.registerUser(defaultUser, new UserRepository.RepositoryCallback() {
-            @Override
-            public void onSuccess() {
-                Log.d(TAG, "✅ Usuario por defecto creado: admin@test.com / admin123");
-            }
-            
-            @Override
-            public void onFailure(String error) {
-                Log.d(TAG, "ℹ️ Usuario por defecto ya existe o error: " + error);
-            }
-        });
-        
-        // 2. Probar registro de usuario adicional
-        User testUser = new User("test@example.com", "Test User Complete", "testpass123");
-        
-        userRepository.registerUser(testUser, new UserRepository.RepositoryCallback() {
-            @Override
-            public void onSuccess() {
-                Log.d(TAG, "✅ Usuario registrado exitosamente");
-                
-                // 2. Probar autenticación
-                userRepository.authenticateUser("test@example.com", "testpass123", 
-                    new UserRepository.AuthCallback() {
-                        @Override
-                        public void onSuccess(User user) {
-                            Log.d(TAG, "✅ Usuario autenticado: " + user.getFullName());
-                            
-                            // 3. Probar actualización de perfil
-                            userRepository.updateUserProfile(user.getEmail(), "Test User Updated", 
-                                new UserRepository.RepositoryCallback() {
-                                    @Override
-                                    public void onSuccess() {
-                                        Log.d(TAG, "✅ Perfil actualizado exitosamente");
-                                        
-                                        // 4. Probar sincronización pendiente
-                                        userRepository.syncPendingUsers(new UserRepository.RepositoryCallback() {
-                                            @Override
-                                            public void onSuccess() {
-                                                Log.d(TAG, "✅ Sincronización completada");
-                                                Log.d(TAG, "=== TODAS LAS PRUEBAS COMPLETADAS EXITOSAMENTE ===");
-                                            }
-                                            
-                                            @Override
-                                            public void onFailure(String error) {
-                                                Log.w(TAG, "⚠️ Sincronización con errores: " + error);
-                                                Log.d(TAG, "=== PRUEBAS COMPLETADAS (con advertencias) ===");
-                                            }
-                                        });
-                                    }
-                                    
-                                    @Override
-                                    public void onFailure(String error) {
-                                        Log.e(TAG, "❌ Error actualizando perfil: " + error);
-                                    }
-                                });
-                        }
-                        
-                        @Override
-                        public void onFailure(String error) {
-                            Log.e(TAG, "❌ Error en autenticación: " + error);
-                        }
-                    });
-            }
-            
-            @Override
-            public void onFailure(String error) {
-                Log.e(TAG, "❌ Error registrando usuario: " + error);
-            }
-        });
     }
     
     @Override
@@ -120,4 +49,5 @@ public class MainActivity extends AppCompatActivity {
             userRepository.cleanup();
         }
     }
+    
 }

@@ -87,9 +87,28 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void checkSyncStatus() {
-        // Por ahora mostrar estado estático, se implementará método en UserRepository después
-        tvSyncStatus.setText("✓ Datos sincronizados");
-        tvSyncStatus.setTextColor(getResources().getColor(android.R.color.holo_green_dark, null));
+        userRepository.getUserByEmail(currentUserEmail, new UserRepository.UserCallback() {
+            @Override
+            public void onSuccess(User user) {
+                runOnUiThread(() -> {
+                    if (user.isPendingSync()) {
+                        tvSyncStatus.setText("⚠️ Cambios pendientes de sincronización");
+                        tvSyncStatus.setTextColor(getResources().getColor(android.R.color.holo_orange_dark, null));
+                    } else {
+                        tvSyncStatus.setText("✓ Todos los datos están sincronizados");
+                        tvSyncStatus.setTextColor(getResources().getColor(android.R.color.holo_green_dark, null));
+                    }
+                });
+            }
+            
+            @Override
+            public void onFailure(String error) {
+                runOnUiThread(() -> {
+                    tvSyncStatus.setText("❌ Error verificando sincronización");
+                    tvSyncStatus.setTextColor(getResources().getColor(android.R.color.holo_red_dark, null));
+                });
+            }
+        });
     }
 
     private void setupListeners() {
@@ -99,10 +118,8 @@ public class HomeActivity extends AppCompatActivity {
         });
 
         cardMap.setOnClickListener(v -> {
-            // TODO: Implementar MapActivity
-            Toast.makeText(this, "Mapa próximamente", Toast.LENGTH_SHORT).show();
-            // Intent intent = new Intent(HomeActivity.this, MapActivity.class);
-            // startActivity(intent);
+            Intent intent = new Intent(HomeActivity.this, MapActivity.class);
+            startActivity(intent);
         });
 
         cardSync.setOnClickListener(v -> {
