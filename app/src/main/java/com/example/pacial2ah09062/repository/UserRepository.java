@@ -106,6 +106,40 @@ public class UserRepository {
             }
         });
     }
+
+    /**
+     * Crea un nuevo usuario, usado principalmente para login social donde el usuario ya está autenticado.
+     */
+    public void createUser(User user, boolean syncToFirebase, AuthCallback callback) {
+        executor.execute(() -> {
+            try {
+                user.setPendingSync(syncToFirebase);
+                userDAO.insertUser(user);
+                Log.d(TAG, "Usuario creado localmente: " + user.getEmail());
+
+                if (syncToFirebase) {
+                    syncUserToFirebase(user, new RepositoryCallback() {
+                        @Override
+                        public void onSuccess() {
+                            executor.execute(() -> userDAO.updateSyncStatus(user.getEmail(), false));
+                            callback.onSuccess(user);
+                        }
+
+                        @Override
+                        public void onFailure(String error) {
+                            // Todavía es un éxito porque el usuario se creó localmente
+                            callback.onSuccess(user);
+                        }
+                    });
+                } else {
+                    callback.onSuccess(user);
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Error creando usuario", e);
+                callback.onFailure("No se pudo crear el usuario localmente.");
+            }
+        });
+    }
     
     // ================== OPERACIONES DE AUTENTICACIÓN ==================
     

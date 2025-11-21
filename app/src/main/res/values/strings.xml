@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">App Parcial 2</string>
-    <string name="nombre">Milton Alas</string>
-    <string name="google_maps_key">tu apikey</string>
+    <string name="app_name">Chivo Eats</string>
+    <string name="nombre">Chivo Eats</string>
+    <string name="google_maps_key">tu contrasenia</string>
 </resources>

@@ -92,6 +92,21 @@
             android:textStyle="bold"
             app:cornerRadius="8dp" />
 
+        <Button
+            android:id="@+id/btnGoogleLogin"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginTop="24dp"
+            app:icon="@drawable/ic_google"
+            android:text="Continuar con Google"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:iconGravity="textStart"
+            app:iconPadding="12dp"
+            app:iconTint="@null"
+            app:cornerRadius="8dp" />
+
+
         <ProgressBar
             android:id="@+id/progressBar"
             android:layout_width="wrap_content"
@@ -117,7 +132,6 @@
                 android:layout_height="wrap_content"
                 android:text="Regístrate"
                 android:textColor="@color/black"
-
                 android:textSize="14sp"
                 android:textStyle="bold"
                 android:clickable="true"

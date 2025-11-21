@@ -2,6 +2,7 @@ package com.example.pacial2ah09062.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -10,25 +11,46 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+//GoogleSignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputLayout;
 import com.example.pacial2ah09062.R;
+import com.example.pacial2ah09062.database.entity.User;
 import com.example.pacial2ah09062.repository.UserRepository;
 import com.example.pacial2ah09062.utils.PreferenceManager;
 import com.example.pacial2ah09062.utils.ValidationUtils;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.GoogleAuthProvider;
 
 public class LoginActivity extends AppCompatActivity {
+
+    private static final String TAG = "LoginActivity";
 
     private TextInputLayout tilEmail, tilPassword;
     private EditText etEmail, etPassword;
     private CheckBox cbRememberMe;
-    private Button btnLogin;
+    private Button btnLogin, btnGoogleLogin;
     private TextView tvRegister;
     private ProgressBar progressBar;
 
     private PreferenceManager preferencesManager;
     private UserRepository userRepository;
+
+    private FirebaseAuth mAuth;
+    private GoogleSignInClient mGoogleSignInClient;
+    private ActivityResultLauncher<Intent> googleSignInLauncher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +61,35 @@ public class LoginActivity extends AppCompatActivity {
 
         preferencesManager = new PreferenceManager(this);
         userRepository = UserRepository.getInstance(this);
+
+        // Initialize Firebase Auth
+        mAuth = FirebaseAuth.getInstance();
+
+        // Configure Google Sign-In
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_id))
+                .requestEmail()
+                .build();
+        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+
+        // Initialize ActivityResultLauncher
+        googleSignInLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == RESULT_OK) {
+                        Intent data = result.getData();
+                        Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+                        try {
+                            // Google Sign In was successful, authenticate with Firebase
+                            GoogleSignInAccount account = task.getResult(ApiException.class);
+                            firebaseAuthWithGoogle(account.getIdToken());
+                        } catch (ApiException e) {
+                            // Google Sign In failed, update UI appropriately
+                            Log.w(TAG, "Google sign in failed", e);
+                            Toast.makeText(LoginActivity.this, "Error en el inicio de sesión con Google.", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
 
         loadSavedCredentials();
         setupListeners();
@@ -51,6 +102,7 @@ public class LoginActivity extends AppCompatActivity {
         etPassword = findViewById(R.id.etPassword);
         cbRememberMe = findViewById(R.id.cbRememberMe);
         btnLogin = findViewById(R.id.btnLogin);
+        btnGoogleLogin = findViewById(R.id.btnGoogleLogin);
         tvRegister = findViewById(R.id.tvRegister);
         progressBar = findViewById(R.id.progressBar);
     }
@@ -65,6 +117,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private void setupListeners() {
         btnLogin.setOnClickListener(v -> attemptLogin());
+        btnGoogleLogin.setOnClickListener(v -> signInWithGoogle());
 
         tvRegister.setOnClickListener(v -> {
             Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
@@ -86,6 +139,83 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
     }
+
+    private void signInWithGoogle() {
+        Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+        googleSignInLauncher.launch(signInIntent);
+    }
+
+    private void firebaseAuthWithGoogle(String idToken) {
+        showLoading(true);
+        AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
+        mAuth.signInWithCredential(credential)
+                .addOnCompleteListener(this, task -> {
+                    if (task.isSuccessful()) {
+                        // Sign in success, update UI with the signed-in user's information
+                        FirebaseUser firebaseUser = mAuth.getCurrentUser();
+                        if (firebaseUser != null) {
+                            // Check if user exists in local DB, if not, create it
+                            userRepository.getUserByEmail(firebaseUser.getEmail(), new UserRepository.UserCallback() {
+                                @Override
+                                public void onSuccess(User user) {
+                                    if (user == null) {
+                                        // User does not exist, create a new entry
+                                        createNewUserFromFirebase(firebaseUser);
+                                    } else {
+                                        // User exists, proceed to login
+                                        handleSuccessfulLogin(user);
+                                    }
+                                }
+
+                                @Override
+                                public void onFailure(String error) {
+                                    // Assume user doesn't exist locally and create them
+                                    Log.w(TAG, "getUserByEmail failed, creating new user anyway: " + error);
+                                    createNewUserFromFirebase(firebaseUser);
+                                }
+                            });
+                        }
+                    } else {
+                        // If sign in fails, display a message to the user.
+                        showLoading(false);
+                        Toast.makeText(LoginActivity.this, "Error de autenticación con Firebase.", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    private void createNewUserFromFirebase(FirebaseUser firebaseUser) {
+        User newUser = new User(
+                firebaseUser.getEmail(), // Use email as primary key
+                firebaseUser.getDisplayName(),
+                "" // No password for Google Sign-In
+        );
+        userRepository.createUser(newUser, true, new UserRepository.AuthCallback() {
+            @Override
+            public void onSuccess(User createdUser) {
+                handleSuccessfulLogin(createdUser);
+            }
+
+            @Override
+            public void onFailure(String error) {
+                runOnUiThread(() -> {
+                    showLoading(false);
+                    Toast.makeText(LoginActivity.this, "Error al guardar el usuario localmente: " + error, Toast.LENGTH_SHORT).show();
+                });
+            }
+        });
+    }
+
+    private void handleSuccessfulLogin(User user) {
+        runOnUiThread(() -> {
+            showLoading(false);
+            preferencesManager.setUserLoggedIn(user.getEmail());
+            Toast.makeText(LoginActivity.this, "Bienvenido " + user.getFullName(), Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
+            startActivity(intent);
+            finish();
+        });
+    }
+
 
     private void attemptLogin() {
         // Limpiar errores previos
@@ -156,6 +286,7 @@ public class LoginActivity extends AppCompatActivity {
     private void showLoading(boolean show) {
         progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
         btnLogin.setEnabled(!show);
+        btnGoogleLogin.setEnabled(!show);
         etEmail.setEnabled(!show);
         etPassword.setEnabled(!show);
         cbRememberMe.setEnabled(!show);
