@@ -69,6 +69,17 @@
             android:exported="false"
             android:parentActivityName=".activities.HomeActivity" />
 
+        <!-- ProductListActivity (Catálogo) -->
+        <activity
+            android:name=".activities.ProductListActivity"
+            android:exported="false"
+            android:parentActivityName=".activities.HomeActivity" />
+
+        <!-- CartActivity (Carrito) -->
+        <activity
+            android:name=".activities.CartActivity"
+            android:exported="false"
+            android:parentActivityName=".activities.HomeActivity" />
 
 
     </application>

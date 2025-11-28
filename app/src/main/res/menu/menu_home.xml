@@ -9,6 +9,18 @@
         app:showAsAction="ifRoom" />
 
     <item
+        android:id="@+id/action_products"
+        android:icon="@android:drawable/ic_menu_sort_by_size"
+        android:title="Productos"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/action_cart"
+        android:icon="@android:drawable/ic_menu_view"
+        android:title="Carrito"
+        app:showAsAction="ifRoom" />
+
+    <item
         android:id="@+id/action_logout"
         android:icon="@android:drawable/ic_lock_power_off"
         android:title="Cerrar Sesión"
