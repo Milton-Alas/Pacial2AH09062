@@ -9,9 +9,12 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.pacial2ah09062.R;
 import com.example.pacial2ah09062.database.entity.Product;
 import com.google.android.material.button.MaterialButton;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.List;
 
@@ -23,6 +26,7 @@ public class ProductListAdapter extends RecyclerView.Adapter<ProductListAdapter.
 
     private List<Product> products;
     private final OnProductClickListener listener;
+    private final FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
 
     public ProductListAdapter(List<Product> products, OnProductClickListener listener) {
         this.products = products;
@@ -44,7 +48,7 @@ public class ProductListAdapter extends RecyclerView.Adapter<ProductListAdapter.
     @Override
     public void onBindViewHolder(@NonNull ProductViewHolder holder, int position) {
         Product product = products.get(position);
-        holder.bind(product, listener);
+        holder.bind(product, listener, firebaseStorage);
     }
 
     @Override
@@ -67,13 +71,23 @@ public class ProductListAdapter extends RecyclerView.Adapter<ProductListAdapter.
             btnAddToCart = itemView.findViewById(R.id.btnAddToCart);
         }
 
-        public void bind(final Product product, final OnProductClickListener listener) {
+        public void bind(final Product product, final OnProductClickListener listener, final FirebaseStorage firebaseStorage) {
             tvName.setText(product.getName());
             tvDescription.setText(product.getDescription());
             tvPrice.setText(String.format("$ %.2f", product.getPrice()));
 
-            // Por ahora usamos una imagen estática local; en la fase de Storage se cargará desde Firebase Storage
-            imgProduct.setImageResource(R.drawable.chivoeats);
+            String imagePath = product.getImagePath();
+            if (imagePath != null && !imagePath.isEmpty()) {
+                StorageReference ref = firebaseStorage.getReference().child(imagePath);
+                ref.getDownloadUrl()
+                        .addOnSuccessListener(uri -> Glide.with(imgProduct.getContext())
+                                .load(uri)
+                                .placeholder(R.drawable.chivoeats)
+                                .into(imgProduct))
+                        .addOnFailureListener(e -> imgProduct.setImageResource(R.drawable.chivoeats));
+            } else {
+                imgProduct.setImageResource(R.drawable.chivoeats);
+            }
 
             btnAddToCart.setOnClickListener(v -> listener.onAddToCartClicked(product));
         }

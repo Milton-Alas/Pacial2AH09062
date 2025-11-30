@@ -17,6 +17,7 @@ import com.example.pacial2ah09062.database.dao.ProductDAO;
 import com.example.pacial2ah09062.database.entity.CartItem;
 import com.example.pacial2ah09062.database.entity.Product;
 import com.example.pacial2ah09062.model.CartItemWithProduct;
+import com.example.pacial2ah09062.repository.OrderRepository;
 import com.example.pacial2ah09062.utils.PreferenceManager;
 import com.google.android.material.button.MaterialButton;
 
@@ -38,6 +39,7 @@ public class CartActivity extends AppCompatActivity implements CartListAdapter.O
     private PreferenceManager preferenceManager;
     private ExecutorService executorService;
     private String currentUserEmail;
+    private OrderRepository orderRepository;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -64,6 +66,7 @@ public class CartActivity extends AppCompatActivity implements CartListAdapter.O
         productDAO = db.productDAO();
         preferenceManager = new PreferenceManager(this);
         executorService = Executors.newSingleThreadExecutor();
+        orderRepository = OrderRepository.getInstance(this);
 
         currentUserEmail = preferenceManager.getCurrentUserEmail();
         if (currentUserEmail == null || currentUserEmail.isEmpty()) {
@@ -73,8 +76,24 @@ public class CartActivity extends AppCompatActivity implements CartListAdapter.O
         }
 
         btnPlaceOrder.setOnClickListener(v -> {
-            // Fase 2: solo mostramos un mensaje; la creación real de órdenes se hará en la fase 3
-            Toast.makeText(CartActivity.this, "Función de realizar pedido se implementará en la siguiente fase", Toast.LENGTH_LONG).show();
+            orderRepository.placeOrder(currentUserEmail, new OrderRepository.OrderPlacementCallback() {
+                @Override
+                public void onSuccess(com.example.pacial2ah09062.database.entity.Order order, boolean syncedWithServer) {
+                    runOnUiThread(() -> {
+                        if (syncedWithServer) {
+                            Toast.makeText(CartActivity.this, "Pedido realizado y sincronizado", Toast.LENGTH_LONG).show();
+                        } else {
+                            Toast.makeText(CartActivity.this, "Pedido guardado localmente. Se sincronizará cuando haya conexión.", Toast.LENGTH_LONG).show();
+                        }
+                        loadCart();
+                    });
+                }
+
+                @Override
+                public void onFailure(String error) {
+                    runOnUiThread(() -> Toast.makeText(CartActivity.this, error, Toast.LENGTH_LONG).show());
+                }
+            });
         });
 
         loadCart();

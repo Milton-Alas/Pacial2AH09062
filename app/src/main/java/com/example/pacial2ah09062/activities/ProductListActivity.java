@@ -13,9 +13,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.pacial2ah09062.R;
 import com.example.pacial2ah09062.database.AppDatabase;
 import com.example.pacial2ah09062.database.dao.CartDAO;
-import com.example.pacial2ah09062.database.dao.ProductDAO;
 import com.example.pacial2ah09062.database.entity.CartItem;
 import com.example.pacial2ah09062.database.entity.Product;
+import com.example.pacial2ah09062.repository.ProductRepository;
 import com.example.pacial2ah09062.utils.PreferenceManager;
 
 import java.util.ArrayList;
@@ -28,7 +28,7 @@ public class ProductListActivity extends AppCompatActivity implements ProductLis
     private RecyclerView recyclerProducts;
     private ProductListAdapter adapter;
 
-    private ProductDAO productDAO;
+    private ProductRepository productRepository;
     private CartDAO cartDAO;
     private PreferenceManager preferenceManager;
     private ExecutorService executorService;
@@ -54,10 +54,10 @@ public class ProductListActivity extends AppCompatActivity implements ProductLis
         recyclerProducts.setAdapter(adapter);
 
         AppDatabase db = AppDatabase.getInstance(this);
-        productDAO = db.productDAO();
         cartDAO = db.cartDAO();
         preferenceManager = new PreferenceManager(this);
         executorService = Executors.newSingleThreadExecutor();
+        productRepository = ProductRepository.getInstance(this);
 
         currentUserEmail = preferenceManager.getCurrentUserEmail();
         if (currentUserEmail == null || currentUserEmail.isEmpty()) {
@@ -76,15 +76,25 @@ public class ProductListActivity extends AppCompatActivity implements ProductLis
     }
 
     private void loadProducts() {
-        executorService.execute(() -> {
-            List<Product> products = productDAO.getAllProducts();
-            if (products == null || products.isEmpty()) {
-                products = createSampleProducts();
-                productDAO.insertProducts(products);
+        productRepository.getProducts(new ProductRepository.ProductCallback() {
+            @Override
+            public void onSuccess(List<Product> products) {
+                runOnUiThread(() -> adapter.setProducts(products));
             }
 
-            final List<Product> finalProducts = products;
-            runOnUiThread(() -> adapter.setProducts(finalProducts));
+            @Override
+            public void onFailure(String error) {
+                // Si no hay datos remotos ni locales, usamos productos de ejemplo como fallback
+                if (adapter.getItemCount() == 0) {
+                    executorService.execute(() -> {
+                        List<Product> sample = createSampleProducts();
+                        AppDatabase db = AppDatabase.getInstance(ProductListActivity.this);
+                        db.productDAO().insertProducts(sample);
+                        runOnUiThread(() -> adapter.setProducts(sample));
+                    });
+                }
+                runOnUiThread(() -> Toast.makeText(ProductListActivity.this, error, Toast.LENGTH_LONG).show());
+            }
         });
     }
 
