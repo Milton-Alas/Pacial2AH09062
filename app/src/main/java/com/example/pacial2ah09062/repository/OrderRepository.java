@@ -28,6 +28,16 @@ public class OrderRepository {
         void onFailure(String error);
     }
 
+    public interface OrdersCallback {
+        void onSuccess(List<Order> orders);
+        void onFailure(String error);
+    }
+
+    public interface OrderDetailsCallback {
+        void onSuccess(Order order, List<OrderItem> orderItems);
+        void onFailure(String error);
+    }
+
     private static volatile OrderRepository INSTANCE;
 
     private final OrderDAO orderDAO;
@@ -57,10 +67,10 @@ public class OrderRepository {
     }
 
     /**
-     * Crea un pedido a partir del carrito del usuario.
+     * Crea un pedido a partir del carrito del usuario con dirección de entrega.
      * Guarda siempre en Room. Si falla la sync con Firebase, el pedido queda con pendingSync=true.
      */
-    public void placeOrder(String userEmail, OrderPlacementCallback callback) {
+    public void placeOrder(String userEmail, String deliveryAddress, OrderPlacementCallback callback) {
         executorService.execute(() -> {
             try {
                 List<CartItem> cartItems = cartDAO.getCartItemsByUser(userEmail);
@@ -94,7 +104,7 @@ public class OrderRepository {
                     return;
                 }
 
-                Order order = new Order(orderId, userEmail, "PENDING", total);
+                Order order = new Order(orderId, userEmail, "PENDING", deliveryAddress, total);
                 order.setCreatedAt(now);
                 order.setUpdatedAt(now);
                 order.setPendingSync(true);
@@ -129,5 +139,111 @@ public class OrderRepository {
                 callback.onFailure("Error creando pedido: " + e.getMessage());
             }
         });
+    }
+
+    /**
+     * Obtiene todos los pedidos de un usuario ordenados por fecha de creación (más reciente primero)
+     * Primero intenta sincronizar desde Firebase, luego devuelve los pedidos locales
+     */
+    public void getUserOrders(String userEmail, OrdersCallback callback) {
+        // Primero intentar sincronizar desde Firebase
+        syncOrdersFromFirebase(userEmail, new OrdersCallback() {
+            @Override
+            public void onSuccess(List<Order> firebaseOrders) {
+                // Firebase sync exitoso, devolver pedidos actualizados
+                executorService.execute(() -> {
+                    try {
+                        List<Order> localOrders = orderDAO.getOrdersByUser(userEmail);
+                        callback.onSuccess(localOrders != null ? localOrders : new ArrayList<>());
+                    } catch (Exception e) {
+                        Log.e(TAG, "Error obteniendo pedidos locales después de sync", e);
+                        callback.onFailure("Error cargando pedidos: " + e.getMessage());
+                    }
+                });
+            }
+
+            @Override
+            public void onFailure(String error) {
+                // Firebase falló, devolver pedidos locales
+                Log.w(TAG, "No se pudieron sincronizar pedidos desde Firebase: " + error);
+                executorService.execute(() -> {
+                    try {
+                        List<Order> orders = orderDAO.getOrdersByUser(userEmail);
+                        callback.onSuccess(orders != null ? orders : new ArrayList<>());
+                    } catch (Exception e) {
+                        Log.e(TAG, "Error obteniendo pedidos del usuario", e);
+                        callback.onFailure("Error cargando pedidos: " + e.getMessage());
+                    }
+                });
+            }
+        });
+    }
+
+    /**
+     * Obtiene los detalles completos de un pedido específico
+     */
+    public void getOrderDetails(String orderId, OrderDetailsCallback callback) {
+        executorService.execute(() -> {
+            try {
+                Order order = orderDAO.getOrderById(orderId);
+                if (order == null) {
+                    callback.onFailure("Pedido no encontrado");
+                    return;
+                }
+                
+                List<OrderItem> orderItems = orderDAO.getOrderItems(orderId);
+                callback.onSuccess(order, orderItems != null ? orderItems : new ArrayList<>());
+            } catch (Exception e) {
+                Log.e(TAG, "Error obteniendo detalles del pedido", e);
+                callback.onFailure("Error cargando detalles: " + e.getMessage());
+            }
+        });
+    }
+
+    /**
+     * Sincroniza pedidos desde Firebase y actualiza la base de datos local
+     */
+    private void syncOrdersFromFirebase(String userEmail, OrdersCallback callback) {
+        orderFirebaseManager.getUserOrdersFromFirebase(userEmail, new OrderFirebaseManager.OrdersListCallback() {
+            @Override
+            public void onSuccess(List<Order> firebaseOrders) {
+                executorService.execute(() -> {
+                    try {
+                        // Actualizar pedidos existentes en la base de datos local
+                        for (Order firebaseOrder : firebaseOrders) {
+                            Order localOrder = orderDAO.getOrderById(firebaseOrder.getId());
+                            if (localOrder != null) {
+                                // Actualizar estado y otros campos desde Firebase
+                                localOrder.setStatus(firebaseOrder.getStatus());
+                                localOrder.setUpdatedAt(firebaseOrder.getUpdatedAt());
+                                localOrder.setPendingSync(false);
+                                orderDAO.insertOrder(localOrder); // Room usará REPLACE
+                                Log.d(TAG, "Pedido actualizado: " + localOrder.getId() + " -> " + localOrder.getStatus());
+                            } else {
+                                // Pedido no existe localmente, insertarlo
+                                orderDAO.insertOrder(firebaseOrder);
+                                Log.d(TAG, "Pedido insertado desde Firebase: " + firebaseOrder.getId());
+                            }
+                        }
+                        callback.onSuccess(firebaseOrders);
+                    } catch (Exception e) {
+                        Log.e(TAG, "Error sincronizando pedidos desde Firebase", e);
+                        callback.onFailure("Error actualizando pedidos locales");
+                    }
+                });
+            }
+
+            @Override
+            public void onFailure(String error) {
+                callback.onFailure(error);
+            }
+        });
+    }
+
+    /**
+     * Fuerza la sincronización de pedidos desde Firebase (para pull-to-refresh)
+     */
+    public void refreshOrdersFromFirebase(String userEmail, OrdersCallback callback) {
+        syncOrdersFromFirebase(userEmail, callback);
     }
 }

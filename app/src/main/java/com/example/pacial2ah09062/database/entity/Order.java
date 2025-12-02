@@ -12,7 +12,8 @@ public class Order {
     private String id;
 
     private String userEmail;
-    private String status; // PENDING, CONFIRMED, PREPARING, DELIVERING, DELIVERED, CANCELLED
+    private String status; // PENDING, PREPARING, ON_WAY, DELIVERED
+    private String deliveryAddress;
     private double total;
     private long createdAt;
     private long updatedAt;
@@ -21,11 +22,12 @@ public class Order {
     public Order() {
     }
 
-    public Order(@NonNull String id, String userEmail, String status, double total) {
+    public Order(@NonNull String id, String userEmail, String status, String deliveryAddress, double total) {
         long now = System.currentTimeMillis();
         this.id = id;
         this.userEmail = userEmail;
         this.status = status;
+        this.deliveryAddress = deliveryAddress;
         this.total = total;
         this.createdAt = now;
         this.updatedAt = now;
@@ -55,6 +57,14 @@ public class Order {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getDeliveryAddress() {
+        return deliveryAddress;
+    }
+
+    public void setDeliveryAddress(String deliveryAddress) {
+        this.deliveryAddress = deliveryAddress;
     }
 
     public double getTotal() {

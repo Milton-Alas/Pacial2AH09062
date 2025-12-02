@@ -75,28 +75,37 @@ public class CartActivity extends AppCompatActivity implements CartListAdapter.O
             return;
         }
 
-        btnPlaceOrder.setOnClickListener(v -> {
-            orderRepository.placeOrder(currentUserEmail, new OrderRepository.OrderPlacementCallback() {
-                @Override
-                public void onSuccess(com.example.pacial2ah09062.database.entity.Order order, boolean syncedWithServer) {
-                    runOnUiThread(() -> {
-                        if (syncedWithServer) {
-                            Toast.makeText(CartActivity.this, "Pedido realizado y sincronizado", Toast.LENGTH_LONG).show();
-                        } else {
-                            Toast.makeText(CartActivity.this, "Pedido guardado localmente. Se sincronizará cuando haya conexión.", Toast.LENGTH_LONG).show();
-                        }
-                        loadCart();
-                    });
-                }
-
-                @Override
-                public void onFailure(String error) {
-                    runOnUiThread(() -> Toast.makeText(CartActivity.this, error, Toast.LENGTH_LONG).show());
-                }
-            });
-        });
+        btnPlaceOrder.setOnClickListener(v -> showDeliveryAddressDialog());
 
         loadCart();
+    }
+
+    private void showDeliveryAddressDialog() {
+        DeliveryAddressDialog dialog = new DeliveryAddressDialog(this, address -> {
+            // Confirmar pedido con la dirección proporcionada
+            placeOrderWithAddress(address);
+        });
+        dialog.show();
+    }
+
+    private void placeOrderWithAddress(String deliveryAddress) {
+        orderRepository.placeOrder(currentUserEmail, deliveryAddress, new OrderRepository.OrderPlacementCallback() {
+            @Override
+            public void onSuccess(com.example.pacial2ah09062.database.entity.Order order, boolean syncedWithServer) {
+                runOnUiThread(() -> {
+                    String message = syncedWithServer ? 
+                        "Pedido realizado y sincronizado" : 
+                        "Pedido guardado localmente. Se sincronizará cuando haya conexión.";
+                    Toast.makeText(CartActivity.this, message, Toast.LENGTH_LONG).show();
+                    loadCart();
+                });
+            }
+
+            @Override
+            public void onFailure(String error) {
+                runOnUiThread(() -> Toast.makeText(CartActivity.this, error, Toast.LENGTH_LONG).show());
+            }
+        });
     }
 
     @Override

@@ -4,7 +4,7 @@
 
     <item
         android:id="@+id/action_cart"
-        android:icon="@android:drawable/ic_menu_view"
+        android:icon="@android:drawable/ic_menu_more"
         android:title="Carrito"
         app:showAsAction="ifRoom" />
 
@@ -13,6 +13,12 @@
         android:icon="@android:drawable/ic_menu_myplaces"
         android:title="Perfil"
         app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/action_orders"
+        android:icon="@android:drawable/ic_menu_recent_history"
+        android:title="Mis Pedidos"
+        app:showAsAction="never" />
 
     <item
         android:id="@+id/action_settings"

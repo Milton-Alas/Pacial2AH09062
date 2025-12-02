@@ -56,6 +56,9 @@ dependencies {
     
     // SharedPreferences
     implementation("androidx.preference:preference:1.2.1")
+    
+    // SwipeRefreshLayout
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
 
     // Autenticacion con Google
     // Import the BoM for the Firebase platform

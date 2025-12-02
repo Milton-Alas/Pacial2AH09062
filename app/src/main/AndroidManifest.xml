@@ -83,6 +83,18 @@
             android:exported="false"
             android:parentActivityName=".activities.HomeActivity" />
 
+        <!-- OrdersActivity (Mis Pedidos) -->
+        <activity
+            android:name=".activities.OrdersActivity"
+            android:exported="false"
+            android:parentActivityName=".activities.ProductListActivity" />
+
+        <!-- OrderDetailActivity (Detalle del Pedido) -->
+        <activity
+            android:name=".activities.OrderDetailActivity"
+            android:exported="false"
+            android:parentActivityName=".activities.OrdersActivity" />
+
         <!-- Firebase Messaging Service -->
         <service
             android:name=".firebase.AppFirebaseMessagingService"

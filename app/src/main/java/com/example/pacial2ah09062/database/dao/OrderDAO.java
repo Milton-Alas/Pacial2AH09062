@@ -37,4 +37,10 @@ public interface OrderDAO {
 
     @Query("SELECT * FROM order_items WHERE orderId = :orderId")
     List<OrderItem> getItemsForOrder(String orderId);
+
+    @Query("SELECT * FROM orders WHERE id = :orderId")
+    Order getOrderById(String orderId);
+
+    @Query("SELECT * FROM order_items WHERE orderId = :orderId")
+    List<OrderItem> getOrderItems(String orderId);
 }

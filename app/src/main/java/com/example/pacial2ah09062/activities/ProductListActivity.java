@@ -155,6 +155,10 @@ public class ProductListActivity extends AppCompatActivity implements ProductLis
             Intent intent = new Intent(ProductListActivity.this, ProfileActivity.class);
             startActivity(intent);
             return true;
+        } else if (id == R.id.action_orders) {
+            Intent intent = new Intent(ProductListActivity.this, OrdersActivity.class);
+            startActivity(intent);
+            return true;
         } else if (id == R.id.action_settings) {
             Intent intent = new Intent(ProductListActivity.this, HomeActivity.class);
             startActivity(intent);
