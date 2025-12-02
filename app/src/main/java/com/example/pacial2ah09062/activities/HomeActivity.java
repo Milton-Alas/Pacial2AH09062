@@ -34,7 +34,8 @@ public class HomeActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
-            getSupportActionBar().setTitle("Inicio");
+            getSupportActionBar().setTitle("Configuración");
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
         initializeViews();
@@ -176,6 +177,12 @@ public class HomeActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
     }
 
     private void logout() {

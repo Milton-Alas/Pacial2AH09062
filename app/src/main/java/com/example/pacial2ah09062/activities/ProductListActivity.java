@@ -1,9 +1,13 @@
 package com.example.pacial2ah09062.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -44,7 +48,7 @@ public class ProductListActivity extends AppCompatActivity implements ProductLis
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setTitle("Productos");
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            // No mostrar botón de retroceso ya que es la pantalla principal
         }
 
         recyclerProducts = findViewById(R.id.recyclerProducts);
@@ -66,14 +70,12 @@ public class ProductListActivity extends AppCompatActivity implements ProductLis
             return;
         }
 
+        // Configurar manejo del botón atrás
+        setupBackPressedCallback();
+        
         loadProducts();
     }
 
-    @Override
-    public boolean onSupportNavigateUp() {
-        onBackPressed();
-        return true;
-    }
 
     private void loadProducts() {
         productRepository.getProducts(new ProductRepository.ProductCallback() {
@@ -133,5 +135,54 @@ public class ProductListActivity extends AppCompatActivity implements ProductLis
 
             runOnUiThread(() -> Toast.makeText(ProductListActivity.this, "Agregado al carrito", Toast.LENGTH_SHORT).show());
         });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_product_list, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.action_cart) {
+            Intent intent = new Intent(ProductListActivity.this, CartActivity.class);
+            startActivity(intent);
+            return true;
+        } else if (id == R.id.action_profile) {
+            Intent intent = new Intent(ProductListActivity.this, ProfileActivity.class);
+            startActivity(intent);
+            return true;
+        } else if (id == R.id.action_settings) {
+            Intent intent = new Intent(ProductListActivity.this, HomeActivity.class);
+            startActivity(intent);
+            return true;
+        } else if (id == R.id.action_logout) {
+            logout();
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void logout() {
+        preferenceManager.logout();
+        Intent intent = new Intent(ProductListActivity.this, LoginActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
+    }
+
+    private void setupBackPressedCallback() {
+        OnBackPressedCallback callback = new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                // Mostrar mensaje informativo en lugar de salir
+                Toast.makeText(ProductListActivity.this, "Use el menú para navegar o cerrar sesión", Toast.LENGTH_SHORT).show();
+            }
+        };
+        getOnBackPressedDispatcher().addCallback(this, callback);
     }
 }

@@ -204,6 +204,58 @@ public class FirebaseManager {
                     }
                 });
     }
+
+    /**
+     * Actualiza el token FCM del usuario en Firebase.
+     */
+    public void updateUserFcmToken(String email, String fcmToken, FirebaseCallback callback) {
+        Map<String, Object> data = new HashMap<>();
+        data.put("fcmToken", fcmToken);
+        data.put("lastFcmUpdate", System.currentTimeMillis());
+
+        final boolean[] callbackExecuted = {false};
+
+        Runnable timeoutRunnable = () -> {
+            synchronized (callbackExecuted) {
+                if (!callbackExecuted[0]) {
+                    callbackExecuted[0] = true;
+                    Log.w(TAG, "Timeout actualizando FCM token en Firebase: " + email);
+                    if (callback != null) {
+                        callback.onFailure("Sin conexión a internet - token no actualizado");
+                    }
+                }
+            }
+        };
+        timeoutHandler.postDelayed(timeoutRunnable, FIREBASE_TIMEOUT_MS);
+
+        db.collection(USERS_COLLECTION)
+                .document(email)
+                .update(data)
+                .addOnSuccessListener(aVoid -> {
+                    synchronized (callbackExecuted) {
+                        if (!callbackExecuted[0]) {
+                            callbackExecuted[0] = true;
+                            timeoutHandler.removeCallbacks(timeoutRunnable);
+                            Log.d(TAG, "Token FCM actualizado en Firebase para: " + email);
+                            if (callback != null) {
+                                callback.onSuccess();
+                            }
+                        }
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    synchronized (callbackExecuted) {
+                        if (!callbackExecuted[0]) {
+                            callbackExecuted[0] = true;
+                            timeoutHandler.removeCallbacks(timeoutRunnable);
+                            Log.e(TAG, "Error actualizando token FCM en Firebase", e);
+                            if (callback != null) {
+                                callback.onFailure(e.getMessage());
+                            }
+                        }
+                    }
+                });
+    }
     
     /**
      * Verifica si un usuario existe en Firebase
