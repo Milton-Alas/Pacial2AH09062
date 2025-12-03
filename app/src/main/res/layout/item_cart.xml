@@ -139,7 +139,8 @@
             app:layout_constraintStart_toEndOf="@id/cardImage"
             app:layout_constraintTop_toBottomOf="@id/layoutInfo">
 
-            <!-- Botón Menos -->
+            <!-- No se ha agregado funcinalidad
+            // Botón Menos
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnDecrease"
                 style="@style/Widget.MaterialComponents.Button.TextButton"
@@ -156,7 +157,7 @@
                 app:cornerRadius="16dp"
                 app:iconPadding="0dp" />
 
-            <!-- Cantidad -->
+            // Cantidad
             <TextView
                 android:id="@+id/tvQuantityControl"
                 android:layout_width="40dp"
@@ -167,7 +168,7 @@
                 android:textColor="#212121"
                 android:gravity="center" />
 
-            <!-- Botón Más -->
+            // Botón Más
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnIncrease"
                 style="@style/Widget.MaterialComponents.Button.TextButton"
@@ -183,8 +184,10 @@
                 android:textColor="#7B1FA2"
                 app:cornerRadius="16dp"
                 app:iconPadding="0dp" />
-
+-->
         </LinearLayout>
+
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

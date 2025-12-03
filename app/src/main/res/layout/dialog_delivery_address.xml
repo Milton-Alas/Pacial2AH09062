@@ -43,14 +43,15 @@
             android:id="@+id/btnCancel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
             android:text="Cancelar"
-            style="@style/Widget.Material3.Button.TextButton" />
+            android:layout_marginBottom="22dp"
+            android:backgroundTint="@color/error"/>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnConfirm"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
             android:text="Confirmar Pedido"
             android:backgroundTint="@color/purple_500" />
 
