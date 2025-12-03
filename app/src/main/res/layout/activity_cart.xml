@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F5F5F5">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:elevation="4dp">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/purple_500"
+            android:elevation="0dp"
+            app:title="Mi Carrito"
+            app:titleTextColor="@android:color/white"
+            app:navigationIconTint="@android:color/white"
+            app:layout_scrollFlags="scroll|enterAlways" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerCart"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:paddingTop="8dp"
+        android:paddingBottom="120dp"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+
+    <!-- Estado de carrito vacío -->
+    <LinearLayout
+        android:id="@+id/emptyCartLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:orientation="vertical"
+        android:visibility="gone"
+        android:gravity="center"
+        android:padding="32dp">
+
+        <ImageView
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:src="@android:drawable/ic_menu_sort_by_size"
+            android:contentDescription="Carrito vacío" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Tu carrito está vacío"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="#424242" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Agrega productos para continuar"
+            android:textSize="14sp"
+            android:textColor="#757575" />
+
+    </LinearLayout>
+
+    <!-- Panel inferior con total y botón -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/bottomPanel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        app:cardElevation="8dp"
+        app:cardCornerRadius="0dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:background="@android:color/white">
+
+            <!-- Total -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingBottom="12dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Total"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="#212121" />
+
+                <TextView
+                    android:id="@+id/tvCartTotal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="$ 0.00"
+                    android:textSize="22sp"
+                    android:textStyle="bold"
+                    android:textColor="#7B1FA2" />
+
+            </LinearLayout>
+
+            <!-- Botón realizar pedido -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnPlaceOrder"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:text="Realizar pedido"
+                android:textSize="16sp"
+                android:textAllCaps="false"
+                app:cornerRadius="28dp"
+                app:backgroundTint="#7B1FA2"
+                app:icon="@android:drawable/ic_menu_send"
+                app:iconTint="@android:color/white"
+                app:iconGravity="textStart"
+                app:iconSize="20dp" />
+
+        </LinearLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -7,6 +7,8 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <!-- Notificaciones (Android 13+) -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
         android:allowBackup="true"
@@ -69,7 +71,38 @@
             android:exported="false"
             android:parentActivityName=".activities.HomeActivity" />
 
+        <!-- ProductListActivity (Catálogo) -->
+        <activity
+            android:name=".activities.ProductListActivity"
+            android:exported="false"
+            android:parentActivityName=".activities.HomeActivity" />
 
+        <!-- CartActivity (Carrito) -->
+        <activity
+            android:name=".activities.CartActivity"
+            android:exported="false"
+            android:parentActivityName=".activities.HomeActivity" />
+
+        <!-- OrdersActivity (Mis Pedidos) -->
+        <activity
+            android:name=".activities.OrdersActivity"
+            android:exported="false"
+            android:parentActivityName=".activities.ProductListActivity" />
+
+        <!-- OrderDetailActivity (Detalle del Pedido) -->
+        <activity
+            android:name=".activities.OrderDetailActivity"
+            android:exported="false"
+            android:parentActivityName=".activities.OrdersActivity" />
+
+        <!-- Firebase Messaging Service -->
+        <service
+            android:name=".firebase.AppFirebaseMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
 
     </application>
 

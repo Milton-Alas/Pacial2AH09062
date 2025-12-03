@@ -29,10 +29,12 @@ import com.example.pacial2ah09062.database.entity.User;
 import com.example.pacial2ah09062.repository.UserRepository;
 import com.example.pacial2ah09062.utils.PreferenceManager;
 import com.example.pacial2ah09062.utils.ValidationUtils;
+import com.example.pacial2ah09062.firebase.FirebaseManager;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -206,14 +208,36 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void handleSuccessfulLogin(User user) {
+        // Actualizar token FCM para este usuario (importante cuando el token ya existía antes de iniciar sesión)
+        updateFcmTokenForUser(user.getEmail());
+
         runOnUiThread(() -> {
             showLoading(false);
             preferencesManager.setUserLoggedIn(user.getEmail());
             Toast.makeText(LoginActivity.this, "Bienvenido " + user.getFullName(), Toast.LENGTH_SHORT).show();
-            Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
+            Intent intent = new Intent(LoginActivity.this, ProductListActivity.class);
             startActivity(intent);
             finish();
         });
+    }
+
+    private void updateFcmTokenForUser(String email) {
+        FirebaseMessaging.getInstance().getToken()
+                .addOnCompleteListener(task -> {
+                    if (!task.isSuccessful()) {
+                        Log.w(TAG, "No se pudo obtener el token FCM", task.getException());
+                        return;
+                    }
+
+                    String token = task.getResult();
+                    if (token == null || token.isEmpty()) {
+                        Log.w(TAG, "Token FCM vacío");
+                        return;
+                    }
+
+                    FirebaseManager firebaseManager = new FirebaseManager();
+                    firebaseManager.updateUserFcmToken(email, token, null);
+                });
     }
 
 
@@ -266,8 +290,8 @@ public class LoginActivity extends AppCompatActivity {
 
                     Toast.makeText(LoginActivity.this, "Bienvenido " + user.getFullName(), Toast.LENGTH_SHORT).show();
 
-                    // Ir a Home
-                    Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
+                    // Ir a ProductListActivity
+                    Intent intent = new Intent(LoginActivity.this, ProductListActivity.class);
                     startActivity(intent);
                     finish();
                 });

@@ -34,7 +34,8 @@ public class HomeActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
-            getSupportActionBar().setTitle("Inicio");
+            getSupportActionBar().setTitle("Configuración");
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
         initializeViews();
@@ -162,12 +163,26 @@ public class HomeActivity extends AppCompatActivity {
             Intent intent = new Intent(HomeActivity.this, ProfileActivity.class);
             startActivity(intent);
             return true;
+        } else if (id == R.id.action_products) {
+            Intent intent = new Intent(HomeActivity.this, ProductListActivity.class);
+            startActivity(intent);
+            return true;
+        } else if (id == R.id.action_cart) {
+            Intent intent = new Intent(HomeActivity.this, CartActivity.class);
+            startActivity(intent);
+            return true;
         } else if (id == R.id.action_logout) {
             logout();
             return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
     }
 
     private void logout() {

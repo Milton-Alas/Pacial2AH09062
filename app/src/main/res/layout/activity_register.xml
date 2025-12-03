@@ -13,40 +13,57 @@
         android:padding="24dp"
         android:gravity="center">
 
-        <ImageView
-            android:layout_width="131dp"
-            android:layout_height="120dp"
-            android:layout_marginTop="32dp"
-            android:contentDescription="Logo"
-            android:src="@drawable/chivo" />
+        <!-- Logo -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:layout_marginTop="24dp"
+            app:cardCornerRadius="75dp"
+            app:cardElevation="8dp"
+            app:strokeWidth="0dp">
 
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:padding="20dp"
+                android:contentDescription="Logo"
+                android:src="@drawable/chivo"
+                android:scaleType="centerInside" />
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Título -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="24dp"
             android:text="Crear Cuenta"
-            android:textSize="26sp"
+            android:textSize="28sp"
             android:textStyle="bold"
-            android:textColor="@color/purple_500" />
+            android:textColor="#7B1FA2" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:text="Completa el formulario para registrarte"
-            android:textSize="14sp"
-            android:textColor="@android:color/darker_gray"
+            android:textSize="15sp"
+            android:textColor="#757575"
             android:textAlignment="center" />
 
+        <!-- Campos de entrada -->
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilEmail"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="32dp"
-            app:boxStrokeColor="@color/purple_500"
-            app:hintTextColor="@color/purple_500"
-            app:helperText="Formato de correo válido"
-            app:helperTextTextColor="@android:color/darker_gray">
+            app:boxStrokeColor="#7B1FA2"
+            app:hintTextColor="#7B1FA2"
+            app:helperText="Ejemplo: usuario@email.com"
+            app:helperTextTextColor="#9E9E9E"
+            app:startIconDrawable="@android:drawable/ic_dialog_email"
+            app:startIconTint="#7B1FA2">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etEmail"
@@ -54,19 +71,23 @@
                 android:layout_height="wrap_content"
                 android:hint="Correo electrónico"
                 android:inputType="textEmailAddress"
-                android:maxLines="1" />
+                android:maxLines="1"
+                android:textSize="16sp" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilFullName"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            app:boxStrokeColor="@color/purple_500"
-            app:hintTextColor="@color/purple_500"
+            app:boxStrokeColor="#7B1FA2"
+            app:hintTextColor="#7B1FA2"
             app:helperText="Mínimo 7 caracteres"
-            app:helperTextTextColor="@android:color/darker_gray">
+            app:helperTextTextColor="#9E9E9E"
+            app:startIconDrawable="@android:drawable/ic_menu_myplaces"
+            app:startIconTint="#7B1FA2">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etFullName"
@@ -74,32 +95,24 @@
                 android:layout_height="wrap_content"
                 android:hint="Nombre completo"
                 android:inputType="textPersonName"
-                android:maxLines="1" />
+                android:maxLines="1"
+                android:textSize="16sp" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilPassword"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            app:boxStrokeColor="@color/purple_500"
-            app:hintTextColor="@color/purple_500"
+            app:boxStrokeColor="#7B1FA2"
+            app:hintTextColor="#7B1FA2"
             app:passwordToggleEnabled="true"
             app:helperText="Mínimo 8 caracteres"
-            app:helperTextTextColor="@android:color/darker_gray">
-
-
-            <!-- Información de requisitos de contraseña -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="💡 La contraseña debe tener al menos 8 caracteres, incluyendo letras y números"
-                android:textSize="12sp"
-                android:textColor="@android:color/darker_gray"
-                android:padding="8dp"
-                android:background="@drawable/bg_rounded_light" />
+            app:helperTextTextColor="#9E9E9E"
+            app:startIconDrawable="@android:drawable/ic_lock_lock"
+            app:startIconTint="#7B1FA2">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etPassword"
@@ -107,26 +120,100 @@
                 android:layout_height="wrap_content"
                 android:hint="Contraseña"
                 android:inputType="textPassword"
-                android:maxLines="1" />
+                android:maxLines="1"
+                android:textSize="16sp" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
-        <Button
+        <!-- Información de contraseña -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="0dp"
+            app:cardBackgroundColor="#F3E5F5"
+            app:strokeWidth="0dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="12dp"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="💡"
+                    android:textSize="20sp"
+                    android:layout_marginEnd="8dp" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="La contraseña debe tener al menos 8 caracteres, incluyendo letras y números"
+                    android:textSize="13sp"
+                    android:textColor="#6A1B9A"
+                    android:lineSpacingExtra="2dp" />
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Botón de registro -->
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnRegister"
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:layout_marginTop="32dp"
-            android:text="Registrarse"
+            android:text="Crear Cuenta"
             android:textSize="16sp"
             android:textStyle="bold"
-            app:cornerRadius="8dp" />
+            android:textAllCaps="false"
+            app:cornerRadius="28dp"
+            app:backgroundTint="#7B1FA2"
+            app:elevation="4dp" />
 
+        <!-- Progress bar -->
         <ProgressBar
             android:id="@+id/progressBar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
+            android:indeterminateTint="#7B1FA2"
             android:visibility="gone" />
+
+        <!-- Link de login -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:layout_marginBottom="24dp"
+            android:orientation="horizontal"
+            android:gravity="center">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="¿Ya tienes cuenta? "
+                android:textSize="14sp"
+                android:textColor="#757575" />
+
+            <TextView
+                android:id="@+id/tvLogin"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Inicia sesión"
+                android:textColor="#7B1FA2"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:clickable="true"
+                android:focusable="true"
+                android:padding="4dp" />
+
+        </LinearLayout>
 
     </LinearLayout>
 

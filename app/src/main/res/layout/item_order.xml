@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="4dp"
+    app:cardBackgroundColor="@android:color/white">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Header con ID y fecha -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/tvOrderId"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Pedido #12345"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@android:color/black" />
+
+            <TextView
+                android:id="@+id/tvOrderDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="12/01/2024"
+                android:textSize="12sp"
+                android:textColor="#666666" />
+
+        </LinearLayout>
+
+        <!-- Estado del pedido -->
+        <TextView
+            android:id="@+id/tvOrderStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="En preparación"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="@color/purple_500"
+            android:background="@drawable/bg_rounded_light"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="4dp" />
+
+        <!-- Dirección de entrega -->
+        <TextView
+            android:id="@+id/tvDeliveryAddress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Calle Principal 123, Ciudad"
+            android:textSize="14sp"
+            android:textColor="#666666"
+            android:maxLines="2"
+            android:ellipsize="end" />
+
+        <!-- Total y ver detalle -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/tvOrderTotal"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Total: $15.99"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@android:color/black" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnViewDetail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Ver detalle"
+                android:textSize="12sp"
+                style="@style/Widget.Material3.Button.TextButton"
+                app:cornerRadius="8dp" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>
